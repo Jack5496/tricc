@@ -1,0 +1,11 @@
+<% if locals[:controller]!=nil && locals[:action]!=nil && locals[:id]!=nil %>
+    <% button = link_to :controller => locals[:controller], :controller_name => locals[:controller_name], :method_name => locals[:method_name], :custom => locals[:custom], :action => locals[:action], :id => locals[:id], data: {confirm:'Are you sure you want to delete this password?'}  do %>
+        <%= render "helper/button" , locals: {:center => locals[:center], :left => locals[:left], :right => locals[:right], :class => locals[:class] } %>
+    <% end %>
+<% else %>
+    <% button = link_to locals[:link] do %> 
+        <%= render "helper/button" , locals: {:center => locals[:center], :left => locals[:left], :right => locals[:right], :class => locals[:class] } %>
+    <% end %>
+<% end %>
+
+<%= render "helper/panel" , locals: {:title => button, :body => locals[:text] } %>

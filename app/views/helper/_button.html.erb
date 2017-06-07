@@ -1,0 +1,23 @@
+<% if locals[:opacity]!=nil %>
+    <% opacity = locals[:opacity] %>
+<% else %>
+    <% opacity = 1 %>
+<% end %>
+
+<% left = locals[:left] %>
+<% center = locals[:center] %>
+<% right = locals[:right] %>
+<% data = locals[:data] %>
+<% button_id = locals[:id] %>
+<% btn_class = locals[:class] %>
+<% if btn_class == nil %>
+    <% btn_class = "btn-primary" %>
+<% end %>
+
+<div class="btn <%= btn_class %>", id="<%= button_id %>", style="width: 100%; opacity: <%= opacity %>;", data-toggle="<%= data %>">
+    <h5 class="panel-title">
+        <div class="alignleft"><div id="<%= button_id %>_left"><%= locals[:left] %></div></div>
+        <div class="alignright"><div id="<%= button_id %>_right"><%= locals[:right] %></div></div>
+        <div id="<%= button_id %>_center"><%= locals[:center] %></div>
+    </h5>
+</div>

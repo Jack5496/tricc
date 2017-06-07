@@ -1,0 +1,42 @@
+<%= csrf_meta_tag %> <!-- Damit bei einem AJAX Call der Auth. Token mitgesendet wird -->
+
+<script type="text/javascript">
+    var last_change_made = new Date(); //time now in ms
+    var last_update_made = new Date(); //time now in ms
+    var time_to_wait_until_save_changes_in_ms = 1*1000  // wait 1 sec
+
+    function change_saved_long_ago(input_change_time){
+        if( last_change_made == input_change_time){
+            $("body").toggleClass('saved',false);
+        }
+    }
+    
+    function change_saved(is_saved){
+        $("body").toggleClass('unsaved',!is_saved);
+        $("body").toggleClass('saved',is_saved);
+        if(is_saved){
+            setTimeout(change_saved_long_ago.bind(null, last_change_made), time_to_wait_until_save_changes_in_ms/2.0);
+        }
+    }
+    
+    function input_successfull_saved(){
+        if(last_update_made==last_change_made){    // is this the last update made?
+            change_saved(true);
+        }
+    }
+    
+    function separate_ajax(type_pluralize,type_single,ajax_data,question_id){
+        
+    var request = void 0;
+        request = $.ajax({type: "PUT",
+                        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))}, //<!-- Damit bei einem AJAX Call der Auth. Token mitgesendet wird -->
+                        dataType: "script",
+                        url: '/'+type_pluralize+'/'+question_id,
+                        contentType: 'application/json',
+                        data: JSON.stringify({ [type_single] : ajax_data, _method:'put' })
+                }).done(function( msg ){
+                   input_successfull_saved();
+                });
+    }
+    
+</script>

@@ -1,0 +1,293 @@
+<div id="beamerinformation_debug_raw" class="hidden" >Debug Raw</div>
+<div id="beamerinformation_debug" class="hidden" >Debug Information</div>
+<div id="beamerinformation_custom" class="hidden" ></div>
+
+<script type="text/javascript">
+    var interval = 1000;  // 1000 = 1 second
+    function update() {
+        $.ajax({
+                type: 'GET',
+                url: '/results',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    
+                    information_recieved(data);
+                    
+                },
+                complete: function (data) {
+                        // Schedule the next
+                        setTimeout(update, interval);
+                }
+        });
+    }
+    setTimeout(update, interval);
+    
+    var activ_quiz_id_saved = parseInt(<%= GamesController.get_activ_quiz_id %>) || -1;
+    var activ_question_id_saved = parseInt(<%= GamesController.get_activ_question_id %>) || -1;
+    var phase_saved = parseInt(<%= GamesController.get_phase %>) || -1;
+    
+    
+    
+    var collecting_answers_audio = new Audio('/sounds/loop.mp3');
+    var collecting_answers_audio_buffer = new Audio('/sounds/loop.mp3');
+    var collecting_answers_end_audio = new Audio('/sounds/end.mp3');
+    var points_changed = new Audio('/sounds/points_changed.mp3');
+    
+    collecting_answers_audio.ontimeupdate = function() {
+        play_new_buffer_audio(this,collecting_answers_audio_buffer);
+    };
+    collecting_answers_audio_buffer.ontimeupdate = function() {
+        play_new_buffer_audio(this,collecting_answers_audio);
+    };
+                
+    var buffer_fade_in_time = 0.7;            
+    var end_buffer_time = 2; 
+    var end_is_playing = false;
+    var end_was_played = true;
+    
+    function play_new_buffer_audio(orginal,buffer){
+        
+        
+            if(answers_allowed){
+                if(orginal.currentTime > orginal.duration-buffer_fade_in_time ){
+                    if(!end_is_playing){
+                        buffer.play();
+                    }
+                }
+            }
+            else{
+                if(orginal.currentTime > orginal.duration-end_buffer_time ){
+                    end_is_playing = true;
+                    collecting_answers_end_audio.play();
+                }
+            }
+    }
+            
+    collecting_answers_end_audio.onended = function() {
+        end_is_playing = false;
+        end_was_played = true;
+    };
+    
+    var first_load = true;
+    var answers_allowed = false;
+    
+    var points_user_a_old = 0;
+    var points_user_b_old = 0;
+    
+    var custom = "<%= GamesController.get_custom %>";
+    var subscription_for_information_custom = [];
+    function subscribe_for_information_custom(functionName){
+        subscription_for_information_custom.push(functionName);
+    }
+    
+    var user_a_content = "";
+    var subscription_for_user_a_content = [];
+    function subscribe_for_user_a_content(functionName){
+        subscription_for_user_a_content.push(functionName);
+    }
+    
+    
+    
+    function broadcast(subscription_list,value){
+        var arrayLength = subscription_list.length;
+        for (var i = 0; i < arrayLength; i++) {
+            window[subscription_list[i]](value);;
+            //Do something
+        }
+    }
+    
+    function remote_call(){
+        broadcast(subscription_for_information_custom,custom);
+    }
+    
+    function information_recieved(json){
+        custom = json.custom;
+        
+        remote_call();
+        
+        var phase_new = parseInt(json.phase);
+        
+        var activ_quiz_id_new = parseInt(json.activ_quiz_id) || -1;
+        var activ_question_id_new = parseInt(json.activ_question_id) || -1;
+        var answers_amount = parseInt(json.answers_amount_for_activ_question) || 0;
+        
+        if(isNaN(phase_new)){
+            phase_new=-1;
+        }
+        
+        var points_user_a = parseInt(json.total_points_for_user_a) || 0;
+        var points_user_b = parseInt(json.total_points_for_user_b) || 0;
+
+        if(first_load){
+            points_user_a_old = points_user_a;    
+            points_user_b_old = points_user_b;
+        }
+        
+        var points_user_a_changed = points_user_a!=points_user_a_old;
+        var points_user_b_changed = points_user_b!=points_user_b_old;
+        
+        if(points_user_a_changed || points_user_b_changed){
+            points_changed.play();
+        }
+        
+        if(points_user_a_changed){
+            highlight_update("#user_a_panel_points");
+        }
+        if(points_user_b_changed){
+            highlight_update("#user_b_panel_points");
+        }
+        
+        $("#user_a_points").html(points_user_a);
+        $("#user_b_points").html(points_user_b);
+        
+        points_user_a_old = points_user_a;    
+        points_user_b_old = points_user_b;
+        
+        
+        answers_allowed = json.answers_allowed==true;
+        
+        if(phase_new==<%= GamesController.phase_show_question %>){
+                if(answers_allowed){
+                    if(end_was_played){
+                        end_was_played = false;
+                        collecting_answers_audio.play();
+                    }
+                }
+        }
+        
+        var phase_changed = (phase_saved != phase_new);
+        var quiz_id_changed = (activ_quiz_id_saved != activ_quiz_id_new);
+        var question_id_changed = (activ_question_id_saved != activ_question_id_new);
+        
+        $('#beamerinformation_debug_raw').html("DebugInformation: "+JSON.stringify(json));  
+        
+        phase_saved = phase_new;
+        activ_quiz_id_saved = activ_quiz_id_new;
+        activ_question_id_saved = activ_question_id_new;
+        
+        if(question_id_changed || quiz_id_changed || phase_changed || first_load){
+            if(phase_new==<%= GamesController.phase_show_title %> || phase_new==-1){
+                update_beamer_title();
+            }
+            else{
+                $("#beamer_title").html("");
+            }
+        }
+        
+        if (quiz_id_changed || phase_changed || first_load){
+            if(phase_new==<%= GamesController.phase_show_question %> || phase_new==<%= GamesController.phase_show_results %>){
+                update_beamer_header();
+            }
+            else{
+                $("#beamer_header").html("");
+            }
+        }
+        
+        if(quiz_id_changed || phase_changed || first_load){
+            if(phase_new==<%= GamesController.phase_show_question %> || phase_new==<%= GamesController.phase_show_results %>){
+                update_beamer_result();
+            }
+            else{
+                $("#beamer_result").html("");
+                chart_reload_function = null;
+                chart_global = null;
+            }
+        }
+        
+        if(quiz_id_changed || phase_changed || first_load){
+            if(phase_new==<%= GamesController.phase_show_winner %>){
+                update_beamer_winner();
+            }
+            else{
+                $("#beamer_winner").html("");
+            }
+        }
+        
+        first_load = false;
+    }
+    
+    function highlight_update(panel_id){
+        $(panel_id).toggleClass('update',true);
+        setTimeout(highlight_update_end.bind(null, panel_id), 2000);
+    }
+    
+    function highlight_update_end(panel_id){
+        $(panel_id).toggleClass('update',false);
+    }
+    
+    function update_beamer_title(){
+        $.ajax({
+            type: 'GET',
+            url: '/beamer_title_view',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (data) {
+                $("#beamer_title").html(data.content);
+            },
+            complete: function (data) {
+            }
+        });
+    }
+    
+    
+    function update_beamer_header(){
+        $.ajax({
+            type: 'GET',
+            url: '/beamer_header_view',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (data) {
+                $("#beamer_header").html(data.content);
+            },
+            complete: function (data) {
+            }
+        });
+    }
+    
+    
+    var chart_reload_function = null;    //speichere nur eine Instanz der Reloadfunktion => sonst werden mehrere geladen
+    var chart_reload_interval_in_seconds = 1;
+    var chart_global = null;
+    var originalLineDraw = Chart.controllers.line.prototype.draw;   //Suuuuper wichtig!!!! Das neue Chart welches eingefügt wird,
+                                                                    //würde durch den code die alte bereits überschiebene drawLineController
+                                                                    //wieder überschreiben wodurch es zu einem fatalen Fehler kommt und der 
+                                                                    //controller in einer Schleife gefangen bleibt
+    
+    function update_beamer_result(){
+        $.ajax({
+            type: 'GET',
+            url: '/beamer_result_view',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (data) {
+                $("#beamer_result").html(data.content);
+                if(get_new_information!=null){
+                    chart_reload_function = get_new_information;
+                }
+                try{
+                    load_canvas();
+                }
+                catch(e){
+                    
+                }
+            },
+            complete: function (data) {
+            }
+        });
+    }
+    
+    function update_beamer_winner(){
+        $.ajax({
+            type: 'GET',
+            url: '/beamer_winner_view',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (data) {
+                $("#beamer_winner").html(data.content);
+            },
+            complete: function (data) {
+            }
+        });
+    }
+</script>

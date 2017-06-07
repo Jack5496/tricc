@@ -1,0 +1,34 @@
+<% dialog_id = locals[:dialog_id] %>
+<% title = locals[:title] %>
+
+<% open_label_class = locals[:open_label_class] %>
+
+<% open_label_class = "btn_question btn-danger icon" %>
+
+<% open_label = locals[:open_label] %>
+<% dialog_content = locals[:dialog_content] %>
+<% footer = locals[:footer] %>
+
+<!-- Trigger the modal with a button -->
+<button type="button" class="btn <%= open_label_class %>" data-toggle="modal" data-target="#<%= dialog_id %>"><%= open_label %></button>
+
+<!-- Modal -->
+<div id="<%= dialog_id %>" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="alignright"><button type="button" class="btn btn-danger" data-dismiss="modal">&times;</button></div>
+        <h4 class="modal-title"><%= title %></h4>
+      </div>
+      <div class="modal-body">
+        <p><%= dialog_content %></p>
+      </div>
+      <div class="modal-footer">
+        <%= footer %>
+      </div>
+    </div>
+
+  </div>
+</div>

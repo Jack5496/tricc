@@ -1,0 +1,30 @@
+<div id="reloadinformation_debug_raw" class="hidden" >Debug Raw</div>
+<div id="reloadinformation_debug" class="hidden" >Debug Information</div>
+
+<script type="text/javascript">
+    var interval = 1000;  // 1000 = 1 second, 3000 = 3 seconds
+    function update() {
+        $.ajax({
+                type: 'GET',
+                url: '/live',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (data) {
+                     
+                    information_recieved(data);
+                },
+                complete: function (data) {
+                        // Schedule the next
+                        setTimeout(update, interval);
+                }
+        });
+    }
+    setTimeout(update, interval);
+
+
+    function information_recieved(json){
+        
+        $('#reloadinformation_debug_raw').html("DebugInformation: "+json);
+    }
+        
+</script>

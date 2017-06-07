@@ -1,0 +1,73 @@
+<% candidat = User.find(locals[:candidat_id]) %>
+<% candidat_answer = candidat.answers.find_by(question_id: @quiz.activ_question_id) %>
+<% candidat_answered = candidat_answer!= nil %>
+
+<% if candidat.picture.url ==nil %>
+    <% picture_url = "default/user_icon.png" %>
+<% else %>
+     <% picture_url =  candidat.picture.url %>
+<% end %>
+
+<div class="panel panel-default">
+        <div class="panel-heading">
+            <%= image_tag(picture_url) %>
+            
+            <div class="btn-group btn-group-sm">
+				<%= candidat.name %>	    
+            </div>
+        </div>
+        
+
+
+<% if !candidat_answered %>
+    <% candidat_answer = Answer.new %>
+<% end %>
+
+<%= form_for(candidat_answer, html: { multipart: true }) do |f| %>
+  <%= render 'shared/error_messages', object: f.object %>
+  
+  <% @question = Question.find(@quiz.activ_question_id) %>
+  <% specific = @question.specific %>
+  <% specific_plural = @quiz.quiz_type.downcase.pluralize %>
+  
+    <%= render specific_plural+"/activ_game_candidat_answer_form.html.erb" ,locals:{:specific => specific, :candidat => candidat, :f => f} %>
+      
+    <%= f.hidden_field :question_id, :value => specific.acting_as.id %>
+    <%= f.hidden_field :user_id, :value => candidat.id %>
+      
+            <div class="panel-heading">
+                
+                <% if candidat_answered %>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <%= f.submit 'Aktualisieren', :class => 'btn btn-primary' %>
+                        </div>
+                        <div class="col-md-6"><span class="text-right">
+                        <% delete_icon = render "helper/icon" , locals: {:icon_left => "Löschen ", :icon => "fa-trash" } %>
+                        <%= link_to delete_icon, { id: candidat_answer.id, controller: 'answers', action: 'remote_destroy' }, class: "btn btn_question btn-danger icon",data: {confirm: 'Antwort löschen?'} %>
+                        
+                        </span></div>
+                    </div>
+                
+                <% else %>
+                    <%= f.submit 'Antworten', :class => 'btn btn-primary' %>
+                <% end %>
+                
+            </div>
+        
+      
+          
+  <% end %>
+  
+  
+</div>
+
+<script type="text/javascript">
+
+  $('#answer_picture').bind('change', function() {
+    var size_in_megabytes = this.files[0].size/1024/1024;
+    if (size_in_megabytes > 5) {
+      alert('Maximum file size is 5MB. Please choose a smaller file.');
+    }
+  });
+</script>

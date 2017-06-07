@@ -1,0 +1,14 @@
+<div id="test"><p>
+<div id="<%= locals[:panel_id] %>" class="panel panel-default">
+    <% if locals[:title]!=nil %>
+        <div id="<%= locals[:heading_id] %>" class="panel-heading">
+            <h5 id="<%= locals[:title_id] %>" class="panel-title"><%= locals[:title] %></h5>
+        </div>
+    <% end %>
+    <% if locals[:body]!=nil %>
+        <div id="<%= locals[:body_id] %>" class="panel-body">
+            <%= locals[:body] %>
+        </div>
+    <% end %>
+</div>
+</p></div>

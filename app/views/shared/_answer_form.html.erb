@@ -1,0 +1,36 @@
+<%= form_for(Answer.new, html: { multipart: true }) do |f| %>
+  <%= render 'shared/error_messages', object: f.object %>
+  
+  <% @question = Question.find(@quiz.activ_question_id) %>
+  <% type = @question.specific %>
+  
+  <div class="field phone">
+    <center>
+      
+      <%= render type.class.to_s.downcase.pluralize+"/answerform" , locals: {:specific => type, :f => f } %>
+      
+      <%= f.hidden_field :question_id, :value => @question.id %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+      
+      <%= button_tag(type: "submit", class: "btn btn-primary", style: "width: 100%;") do %>
+            <h1>
+              <br>
+                Absenden
+              <br><br>
+            </h1>
+      <% end %>
+    </center>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+  
+  $('form').submit(function() {  
+    var valuesToSubmit = $(this).serialize();
+    $("#submit_button").val("senden...");
+    
+
+    return true; // prevents normal behaviour
+});
+  
+</script>

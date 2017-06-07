@@ -1,0 +1,16 @@
+<% @quiz = Quiz.find(GamesController.get_activ_quiz_id) %>
+<% @antworten = Answer.where(question_id: @quiz.activ_question_id) %>
+
+<% if @antworten.count == 0 %>
+  <div class="vcenter">
+    <h4><center>
+      Pustekuchen...
+  </center></h4>
+  </div>
+<% else %>
+  <% @antworten.each do |answer| %>
+     <ol class="answers">
+       <%= render answer %>
+    </ol>
+  <% end %>
+<% end %>
