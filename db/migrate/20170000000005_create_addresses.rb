@@ -8,6 +8,8 @@ class CreateAddresses < ActiveRecord::Migration
       t.column :street, :string, :null => false
       t.column :building_number, :integer, :null => false
       t.column :secondary_address, :string
+      
+      #t.has_many :departments
 
       t.timestamps null: false
     end

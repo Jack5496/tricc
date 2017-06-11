@@ -1,4 +1,7 @@
 class User < ActiveRecord::Base
+  #has_many :professions, dependent: :destroy
+  has_and_belongs_to_many :professions #Ein User kann mehere Profession besitzten
+  belongs_to :department #Ein User gehört einem Department an
   
   attr_accessor :remember_token
   validates :email,  presence: true, length: { maximum: 50 },
@@ -11,6 +14,10 @@ class User < ActiveRecord::Base
   
   mount_uploader :picture, PictureUploader
   validate  :picture_size
+  
+  scope :last_updated, -> {
+    order('updated_at DESC, created_at DESC').limit(1)
+  }
 
  
 
@@ -62,10 +69,10 @@ class User < ActiveRecord::Base
     end
     File.open(path_to_image, 'wb') do |f|
       f.write img
+      image_user.picture = f
+      image_user.save!
     end
     
-    self.picture = filename
-    self.save!
   end
   
   private

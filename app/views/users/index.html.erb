@@ -1,10 +1,10 @@
 <% provide(:title, 'All users') %>
 <h4>All users</h4>
+    
+<%= will_paginate %>    <!-- Zeigt nur reduzierte Anzahl an -->
 
-<%= will_paginate %>
-
-<ul class="users">
-  <%= render @users %>
-</ul>
-
+<div class="row">
+    <%= render @users %>    <!-- Rendert alle _user.html.erb -->
+</div>
+    
 <%= will_paginate %>

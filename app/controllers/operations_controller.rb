@@ -4,12 +4,14 @@ class OperationsController < ApplicationController
   # GET /operations
   # GET /operations.json
   def index
-    @operations = Operation.all
+    @operations = Operation.paginate(page: params[:page], :per_page => 10)
   end
 
   # GET /operations/1
   # GET /operations/1.json
   def show
+    @operation = Operation.find(params[:id])
+    
   end
 
   # GET /operations/new
@@ -19,6 +21,15 @@ class OperationsController < ApplicationController
 
   # GET /operations/1/edit
   def edit
+  end
+  
+  # Die Funktion map ruft die gleichnamige Seite 'map.html.erb' auf und
+  # übergibt Variablen.
+  # Damit diese Funktion vom Routing gefunden wird, muss diese Aktion in
+  # der Datei 'config/routes.rb' aktiviert werden
+  def map
+    @operation = Operation.find(params[:id])
+    
   end
 
   # POST /operations

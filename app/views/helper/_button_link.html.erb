@@ -1,11 +1,52 @@
-<% if locals[:controller]!=nil && locals[:action]!=nil && locals[:id]!=nil %>
-    <% button = link_to :controller => locals[:controller], :controller_name => locals[:controller_name], :method_name => locals[:method_name], :custom => locals[:custom], :action => locals[:action], :id => locals[:id], data: {confirm:'Are you sure you want to delete this password?'}  do %>
-        <%= render "helper/button" , locals: {:center => locals[:center], :left => locals[:left], :right => locals[:right], :class => locals[:class] } %>
+<!-- Varibeln -->
+<% center = locals[:center] %> <!-- Welcher Text soll auf dem Button sein -->
+<% left = locals[:left] %> <!-- Was soll links am Button sein -->
+<% right = locals[:right] %> <!-- Was soll links am Button sein -->
+<% text = locals[:text] %> <!-- Welcher Text soll unter dem Button sein-->
+
+
+<!-- Entweder man ruft einen Link auf, Bsp. eine Instanz User.first oder @user-->
+<!-- oder man möchte eine Methode in einem Controller aufrufen -->
+    <!-- Instanz -->
+    <% link = locals[:link] %>
+
+    <% if link!=nil %>
+        <% controller = link.class.name.pluralize.downcase %>
+        <% action = 'show' %>
+        <% id = link.id %>
+    <% end %>
+
+    <!-- Methode eines Controller -->
+    <% if locals[:controller] != nil %>
+        <% controller = locals[:controller] %> <!-- An welchen Controller geht die Anfrage-->
+    <% end %>
+    
+    <% if locals[:action] != nil %>
+        <% action = locals[:action] %> <!-- Welche Aktion/Methode soll Ausgeführt werden -->
+    <% end %>
+    
+    <% if locals[:id] != nil %>
+        <% id = locals[:id] %> <!-- Um welches Objekt handelt es sich -->
+    <% end %>
+
+
+<% if controller!=nil && action!=nil && id!=nil %>
+    <% button = link_to :controller => controller, :controller_name => locals[:controller_name], :method_name => locals[:method_name], :custom => locals[:custom], :action => action, :id => id  do %>
+        <%= render "helper/button" , locals: {:center => center, :left => left, :right => right, :class => locals[:class] } %>
     <% end %>
 <% else %>
-    <% button = link_to locals[:link] do %> 
-        <%= render "helper/button" , locals: {:center => locals[:center], :left => locals[:left], :right => locals[:right], :class => locals[:class] } %>
+
+<%
+=begin %>
+
+    <% button = link_to link do %> 
+        <%= render "helper/button" , locals: {:center => center, :left => left, :right => right, :class => locals[:class] } %>
     <% end %>
+   
+<%
+=end %>
+%>
+    
 <% end %>
 
-<%= render "helper/panel" , locals: {:title => button, :body => locals[:text] } %>
+<%= render "helper/panel" , locals: {:title => button, :body => text } %>

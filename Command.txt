@@ -1,7 +1,7 @@
+# drop database, cretae new database and data 
 bundle exec rake db_tasks:rebuild
 
 rails s -e production -p 8080 -b 0.0.0.0
 
-
-Picuture Uploader regenerate
-rails generate uploader Picture
+# link to page
+#http://tricc-jack5496.c9users.io/login

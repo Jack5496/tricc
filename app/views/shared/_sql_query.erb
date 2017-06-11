@@ -1,0 +1,21 @@
+<% if params[:sql_result] != nil %>
+    <% sql_result = render "helper/panel" , locals: {:title => "SQL Result:", :body => params[:sql_result] } %>
+<% else %>
+    <% sql_result = "" %>
+<% end %>
+        
+<%sql_button = form_tag('/static_pages/call_controller_post_method') do %>
+    <%= hidden_field_tag 'controller_name', 'StaticPages' %>
+    <%= hidden_field_tag 'method_name', 'sql' %>
+    <% default_sql = 'SELECT  "users".* FROM "users"  ORDER BY "users"."id" ASC LIMIT 1' %>
+    <%= text_area_tag :custom, default_sql ,:required => 'required', class: 'form-control', :size =>"25x5" %>
+    
+    <% database_icon = render "helper/icon" , locals: {:icon => "fa-database" } %>
+    <%= button_tag(type: "submit", class: "btn btn-primary", style: "width: 100%;") do %>
+        Generate Query <%= database_icon %>
+    <% end %>
+<% end %>
+        
+           
+        
+<%= render "helper/panel" , locals: {:title => "SQL Query:", :body => sql_button+sql_result } %>

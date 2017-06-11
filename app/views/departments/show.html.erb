@@ -1,4 +1,37 @@
+<!-- Das ist die Vollständige Anzeige eines Users  -->
+
 <p id="notice"><%= notice %></p>
 
-<%= link_to 'Edit', edit_department_path(@department) %> |
-<%= link_to 'Back', departments_path %>
+<div class="row">
+    <div class="col-md-12">
+        <%= render "helper/panel" , locals: {:title => @department.name, :body => "" } %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <% link_to_chief = render "helper/button_link" , locals: {:link => @department.chief,
+                                            :center => @department.chief.firstname+" "+@department.chief.lastname } %>
+        <%= render "helper/panel" , locals: {:title => "Chief: ", :body => link_to_chief } %>
+    </div>
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Address: ", :body => @department.address.street } %>
+    </div>
+    
+
+    <div class="col-md-12">
+        <% operations = render @operations %>
+        
+        <% body = '<div class="row">'.html_safe+operations+'</div>'.html_safe %>
+        <% paginate = will_paginate @operations, :param_name => 'operations_page' %>
+        
+        <%= render "helper/panel" , locals: {:title => "Operations", :body => body+paginate } %>
+    </div>
+    
+
+
+
+
+</div>
+
+

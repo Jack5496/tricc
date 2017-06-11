@@ -1,4 +1,69 @@
+<!-- Das ist die Vollständige Anzeige eines Users  -->
+
 <p id="notice"><%= notice %></p>
 
-<%= link_to 'Edit', edit_user_path(@user) %> |
-<%= link_to 'Back', users_path %>
+<div class="row">
+    <div class="col-md-12">
+        <%= render "helper/panel" , locals: {:title => "User: "+@user.id.to_s, :body => "" } %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Firstname: ", :body => @user.firstname } %>
+    </div>
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Lastname: ", :body => @user.lastname } %>
+    </div>
+    
+    <% if @user.picture? %>
+        <div class="col-md-4">
+            <%= render "helper/panel" , locals: {:title => "Bild: ", :body =>image_tag(@user.picture.url, alt: "Titelbild" ) } %>
+        </div>  
+    <% end %>
+
+    <div class="col-md-4">
+        <% gender_icon_name = @user.female ? "fa-venus" : "fa-mars" %>
+        <% gender_icon = render "helper/icon" , locals: {:icon => gender_icon_name } %>
+        <% gender_text = @user.female ? "Weiblich" : "Männlich" %>
+        <% gender_body = gender_text+" "+gender_icon %>
+        
+        <%= render "helper/panel" , locals: {:title => "Geschlecht: ", :body => gender_body.html_safe } %>
+    </div>
+
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "PhoneNumber: ", :body => @user.phone_number } %>
+    </div>
+    
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Informationen: ", :body => @user.information } %>
+    </div>
+            
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Email: ", :body => @user.email } %>
+    </div>
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Device", :body => @user.view_device_type } %>
+    </div>
+    <div class="col-md-4">
+        <% department_body = render @user.department %>
+        <%= render "helper/panel" , locals: {:title => "Department", :body => department_body } %>
+    </div>
+    <div class="col-md-4">
+        <%= render "helper/panel" , locals: {:title => "Height", :body => @user.size.to_s } %>
+    </div>
+    
+    <div class="col-md-12">
+        <% professions = render @professions %>
+        
+        <% body = '<div class="row">'.html_safe+professions+'</div>'.html_safe %>
+        <% paginate = will_paginate @professions, :param_name => 'professions_page' %>
+        
+        <%= render "helper/panel" , locals: {:title => "Professions", :body => body+paginate } %>
+        
+        
+    </div>
+    
+</div>
+
+

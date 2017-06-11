@@ -4,12 +4,16 @@ class DepartmentsController < ApplicationController
   # GET /departments
   # GET /departments.json
   def index
-    @departments = Department.all
+    @departments = Department.paginate(page: params[:page], :per_page => 10)
   end
 
   # GET /departments/1
   # GET /departments/1.json
   def show
+    @department = Department.find(params[:id])
+    @operations = @department.operations
+    @operations = @operations.paginate(:page => params[:operations_page], :per_page => 3)
+    
   end
 
   # GET /departments/new

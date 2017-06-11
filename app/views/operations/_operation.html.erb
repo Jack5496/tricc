@@ -1,0 +1,15 @@
+<!-- Das ist die Miniaturansicht eines Users -->
+
+<% title_name = operation.operation_type+" at "+operation.address.street %>
+<% body = "Chief: "+operation.chief.email+"<br>"+"Activ: "+operation.activ.to_s %>
+
+<% title = render "helper/button_link" , locals: {:link => operation,
+                                            :center => title_name } %>
+
+<!-- xs md lg -->
+<div class="col-md-4">
+    Debug: OperationID: <%= operation.id %>
+    <div class="tabcontent">
+        <%= render "helper/panel" , locals: {:title => title, :body => body.html_safe } %>
+    </div>
+</div>

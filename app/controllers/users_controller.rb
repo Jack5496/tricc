@@ -1,4 +1,8 @@
+require 'reloader/sse'  # Damit SSE Emöglich sind
+
 class UsersController < ApplicationController
+  include ActionController::Live  # Damit SSE Emöglich sind
+  
   before_action :logged_in_user, only: [:show, :delete_picture, :index, :edit, :update, :destroy]
   before_action :correct_user,   only: [:edit, :update]
   before_action :admin_user,     only: [:show, :destroy, :delete_picture, :index]
@@ -6,13 +10,43 @@ class UsersController < ApplicationController
   def index
     @users = User.paginate(page: params[:page], :per_page => 10)
   end
+  
+  
+  # Damit SSE Emöglich sind
+  def index_stream
+    # SSE expects the `text/event-stream` content type
+    response.headers['Content-Type'] = 'text/event-stream'
+
+    sse = Reloader::SSE.new(response.stream)
+
+    last_updated = User.last_updated.first
+    
+    if recently_changed? last_updated
+      begin
+        sse.write(last_updated, event: 'results')
+      rescue IOError
+        # When the client disconnects, we'll get an IOError on write
+      ensure
+        sse.close
+      end
+    end
+    
+    render :nothing => true
+  end
+  
+  # Damit SSE Emöglich sind
+  def recently_changed? last_user
+    last_user.created_at > 5.seconds.ago or
+      last_user.updated_at > 5.seconds.ago
+  end
 
 
   def show
     @user = User.find(params[:id])
-    
-    @answers = @user.answers.paginate(page: params[:page])
-    @questions = @user.questions.paginate(page: params[:page])
+    @professions = @user.professions
+    @professions = @professions.paginate(:page => params[:professions_page], :per_page => 3)
+    #@answers = @user.answers.paginate(page: params[:page])
+    #@questions = @user.questions.paginate(page: params[:page])
   end
 
   def new

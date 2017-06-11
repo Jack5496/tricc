@@ -1,0 +1,123 @@
+<!-- Das ist die Miniaturansicht eines Users -->
+
+
+<%= csrf_meta_tag %> <!-- Damit bei einem AJAX Call der Auth. Token mitgesendet wird -->
+<%= form_for(user, html: { multipart: true }) do |f| %>
+  <%= render 'shared/error_messages', object: f.object %>
+  
+<% if !defined?(locals) %>
+    <% player_number = user.id %>
+<% else %>
+    <% player_number = locals[:player_number] %>
+<% end %>
+
+<div class="col-xs-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+          <h5 class="panel-title">User <%= player_number %></h5>
+        </div>
+        <div class="panel-body">
+            <%= text_field_tag user.id, user.firstname, class: "answinput" , :id => user.id %>
+            <%= text_field_tag user.id, user.lastname, class: "answinput" , :id => user.id %>
+            <% if user.picture? %>
+            
+
+            <% open_label = '<i class="fa fa-trash" aria-hidden="true"></i>'.html_safe %>
+            <% delte_button = link_to :controller => "users", :action => "delete_picture", :id => user.id  do %><div class="btn btn_question btn-danger icon">Löschen</div><% end %>
+            <% content = "Sicher das Bild löschen?" %>
+
+            <% dialog_button = render "helper/dialog_box" , locals: {:dialog_id => "dialog_box_"+user.id.to_s,
+                                            :title => "Löschen", 
+                                            :open_label => open_label,
+                                            :dialog_content => content,
+                                            :footer => delte_button} %>
+                                            
+            <% panel = '<div class="panel panel-default">
+                    <div class="panel-heading">
+                    '.html_safe+dialog_button+'
+                    </div>
+                    <div class="panel-body">
+                    '.html_safe+image_tag(user.picture.url, alt: "Titelbild" )+'
+                    </div>
+                </div>'.html_safe %>                                            
+            
+            <%= panel %>
+                    
+                                     
+                
+            <% else %>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="picture_<%= user.id %>" >
+                            <%= f.file_field :picture, class: "filestyle", id: "user_picture_"+user.id.to_s,accept: 'image/jpeg,image/gif,image/png' %>
+                        </span>
+                    </div>
+                    <div id="upload_button_<%= user.id %>" style="display: none;" >
+                        <div class="panel-body">
+                            
+                                <%= f.submit "Hochladen" do %><i class="fa fa-upload" aria-hidden="true"></i><% end %>
+                            </div>
+                    </div>
+                </div>
+            <% end %>
+        </div>
+        
+        
+    </div>
+</div>     
+        
+
+<% end %>
+<script type="text/javascript">
+    function check_time_passed_for_change_for_user(input_change_time, user_id){
+        if( last_change_made == input_change_time){
+            update_for_user(user_id);
+        }
+    }
+    
+    function input_was_made_for_user(user_id){  
+        last_change_made = new Date();
+        change_saved(false);
+        
+        setTimeout(check_time_passed_for_change_for_user.bind(null, last_change_made, user_id), time_to_wait_until_save_changes_in_ms);
+    }
+    function update_for_user(user_id) {
+      last_update_made = last_change_made;
+      var user_name = $('#'+user_id).val();
+     
+      var request = void 0;
+      request = $.ajax({type: "PUT",
+                        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))}, //<!-- Damit bei einem AJAX Call der Auth. Token mitgesendet wird -->
+                        dataType: "script",
+                        url: '/users/'+user_id,
+                        contentType: 'application/json',
+                        data: JSON.stringify({ 'user': {'name': user_name
+                                                        }, 'ajax' : true, _method:'put' })
+                }).done(function( msg ){
+                     input_successfull_saved();
+                });
+    };
+    
+    $('#user_picture_<%= user.id %>').attr("data-input",false);
+    $('#user_picture_<%= user.id %>').attr("data-buttonText","Auswählen");
+    $('#user_picture_<%= user.id %>').attr("data-buttonName","filebtn");
+    
+    $('#<%= user.id %>').on('input', function(){
+       input_was_made_for_user(this.name);
+    });
+     
+     $('#user_picture_<%= user.id %>').bind('change', function() {
+        var fileName = $(this).val();
+        var user_id = <%= user.id %>;
+        show_submit_field_if_file_selectet_for_user(fileName,user_id);
+    
+        var size_in_megabytes = this.files[0].size/1024/1024;
+        if (size_in_megabytes > 5) {
+          alert('Maximum file size is 5MB. Please choose a smaller file.');
+        }
+      });
+  
+      function show_submit_field_if_file_selectet_for_user(fileName,user_id){
+        $('#upload_button_'+user_id).toggle(fileName!="");
+      }
+</script>

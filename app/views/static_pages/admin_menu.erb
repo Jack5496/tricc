@@ -33,4 +33,42 @@
     
     </div>
 </div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        
+        <% javascript_body = render "shared/sql_query" %>   
+        <%= render "helper/panel" , locals: {:title => "Javascript SQL Query:", :body => javascript_body } %>
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        
+        <% if params[:sql_result] != nil %>
+            <% sql_result = render "helper/panel" , locals: {:title => "SQL Result:", :body => params[:sql_result] } %>
+        <% else %>
+            <% sql_result = "" %>
+        <% end %>
+        
+        <%sql_button = form_tag('/static_pages/call_controller_post_method') do %>
+            <%= hidden_field_tag 'controller_name', 'StaticPages' %>
+            <%= hidden_field_tag 'method_name', 'sql' %>
+            <%= text_area_tag :custom, params[:custom], :required => 'required', class: 'form-control', :size =>"25x5" %>
+            <div class="btn btn-link">
+                <%= submit_tag "Generate Query" %>
+            </div>
+        <% end %>
+        
+           
+        
+        <%= render "helper/panel" , locals: {:title => "Old SQL Query:", :body => sql_button+sql_result } %>
+    </div>
+</div>
   
+
+<!--  -->

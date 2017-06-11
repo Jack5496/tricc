@@ -1,4 +1,80 @@
+<% slideTimeInSeconds = 10 %>
+
+<% image_folger = "static_pages_wallpaper/" %>
+<% images = ["1.jpg","2.jpg","3.jpg"] %>
+<% image1 = "gesamtbild.png" %>
+
 <%= render 'shared/reloadinformation' %>
 <% if logged_in? %>
-  <%= render "phone/home" %>
+  
+  
+  <div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <% first = true %>
+    <% images.each do |image,i| %>
+        <li data-target="#myCarousel" data-slide-to="<%= i %>" <% if first %>class="active"<% end %>></li>
+        <% first = false %>
+    <% end %>
+  </ol>
+    
+    <div class="carousel-inner">
+    <% first = true %>
+    <% images.each do |image,i| %>
+        <% if first %>
+            <div class="item active">
+        <% else %>
+            <div class="item">
+        <% end %>
+                <img src="<%= image_folger %><%= image %>" alt="Chania">
+                <div class="carousel-caption">
+                    <h3>Los Angeles</h3>
+                    <p>LA is always so much fun!</p>
+                </div>
+            </div>
+        
+        
+        <% first = false %>
+    <% end %>
+  
+  </div>
+
+  <!-- Left and right controls -->
+  <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+    
+    <% left_icon = render "helper/icon" , locals: {:icon => "fa-chevron-left" } %>
+    <span class="vertical-center" ><%= left_icon %></span>
+    
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="right carousel-control" href="#myCarousel" data-slide="next">
+      
+    <% right_icon = render "helper/icon" , locals: {:icon => "fa-chevron-right" } %>
+    <span class="vertical-center" ><%= right_icon %></span>
+    
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+  
+  
 <% end %>
+
+
+
+
+<script type="text/javascript">
+var slideIndex = 0;
+showSlides();
+
+function showSlides() {
+    var i;
+    var slides = document.getElementsByClassName("mySlides");
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none"; 
+    }
+    slideIndex++;
+    if (slideIndex> slides.length) {slideIndex = 1} 
+    slides[slideIndex-1].style.display = "block"; 
+    setTimeout(showSlides, <%= slideTimeInSeconds %>*1000); // Change image every 2 seconds
+}
+</script>

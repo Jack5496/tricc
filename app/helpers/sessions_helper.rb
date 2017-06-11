@@ -4,7 +4,7 @@ module SessionsHelper
   def log_in(user)
     session[:user_id] = user.id
     if request.user_agent != nil
-      user.device_type = request.user_agent
+      user.view_device_type = request.user_agent
     end
   end
 
